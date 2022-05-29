@@ -7,8 +7,8 @@ import scipy.io.wavfile as wav
 from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydub import AudioSegment
-from python_speech_features import mfcc
 
+from python_speech_features import mfcc
 app = FastAPI()
 
 origins = ["*"]
