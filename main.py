@@ -1,14 +1,19 @@
+import math
 import operator
 import os
 import pickle
+from email.mime import audio
+from tempfile import TemporaryFile
+from wsgiref.validate import InputWrapper
+
 import filetype
 import numpy as np
 import scipy.io.wavfile as wav
 from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from pydub import AudioSegment
-
 from python_speech_features import mfcc
+
 app = FastAPI()
 
 origins = ["*"]
@@ -100,6 +105,11 @@ def checkType(fileName):
             isConvert = False
 
     return inputFile
+
+
+@app.get("/")
+def read_root():
+    return {"Hello": "World"}
 
 
 @app.post("/uploadfile/")
