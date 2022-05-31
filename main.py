@@ -1,4 +1,4 @@
-import math
+from email import message
 import operator
 import os
 import pickle
@@ -26,15 +26,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- using the model ---
+
 dataset = []
 results = ['', 'blues', 'classical', 'country', 'disco',
            'hippop', 'jazz', 'metal', 'pop', 'reggae', 'rock']
 isConvert = False
 
 
+# load data
 def loadDataset(filename):
-    with open("mydataset.dat", 'rb') as f:
+    with open(filename, 'rb') as f:
         while True:
             try:
                 dataset.append(pickle.load(f))
@@ -45,6 +46,8 @@ def loadDataset(filename):
 
 loadDataset("mydataset.dat")
 
+
+# machine learing method
 
 def distance(instance1, instance2, k):
     distance = 0
@@ -86,42 +89,8 @@ def nearestClass(neighbors):
     return sorter[0][0]
 
 
-def convertToMp3(fileUrl):
-    dst = "convertedMp3.wav"
-    audSeg = AudioSegment.from_mp3(fileUrl)
-    audSeg.export(dst, format="wav")
-    return dst
-
-
-def checkType(fileName):
-    audType = filetype.guess(fileName)
-
-    if (audType != None):
-        if (audType.mime == "audio/mpeg"):
-            inputFile = convertToMp3(fileName)
-            isConvert = True
-        elif (audType.mime == "audio/x-wav"):
-            inputFile = fileName
-            isConvert = False
-
-    return inputFile
-
-
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
-
-@app.post("/uploadfile/")
-async def create_upload_file(file: UploadFile):
-    content = await file.read()
-    f = open(file.filename, "wb")
-    f.write(content)
-
-    inputFile = checkType(file.filename)
-
-    print(inputFile)
-    (rate, sig) = wav.read(inputFile)
+def predict(fileName):
+    (rate, sig) = wav.read(fileName)
     mfcc_feat = mfcc(sig, rate, winlen=0.020, appendEnergy=False)
     covariance = np.cov(np.matrix.transpose(mfcc_feat))
     mean_matrix = mfcc_feat.mean(0)
@@ -129,9 +98,62 @@ async def create_upload_file(file: UploadFile):
 
     pred = nearestClass(getNeighbors(dataset, feature, 5))
 
+    return results[pred]
+
+ # handle type convert
+
+
+def convertToMp3(fileUrl):
+    dst = "convertedMp3.wav"
+    audSeg = AudioSegment.from_mp3(fileUrl)
+    audSeg.export(dst, format="wav")
+    return dst
+
+
+def typeHandler(fileName):
+    audType = filetype.guess(fileName)
+
+    if (audType != None):
+        if (audType.mime == "audio/mpeg"):
+            tempFile = convertToMp3(fileName)
+            isConvert = True
+        elif (audType.mime == "audio/x-wav"):
+            tempFile = fileName
+            isConvert = False
+
+    return tempFile
+
+
+@app.get("/")
+def read_root():
+    return {"status": "ok"}
+
+
+@app.post("/uploadfile/")
+async def gnereDetection(file: UploadFile):
+    # read file and save in server
+    content = await file.read()
+    f = open(file.filename, "wb")
+    f.write(content)
+
+    # the audio length should under 60s
+    if(AudioSegment.from_file(file.filename).duration_seconds > 61):
+        f.close()
+        os.remove(file.filename)
+        return {"genre": "", "status": "error", "message": "音檔長度不可高於60秒"}
+
+    # if mp3 convert it to wav
+    convertedFile = typeHandler(file.filename)
+
+    print('已讀取以及轉換檔案 : ' + convertedFile)
+
+    # start to predict the audio genre
+    genre = predict(convertedFile)
+
+    # delete these file
     f.close()
     os.remove(file.filename)
     if(isConvert):
-        os.remove(inputFile)
+        os.remove(convertedFile)
 
-    return {"genre": results[pred]}
+    return {"genre": genre, "status": "ok"}
