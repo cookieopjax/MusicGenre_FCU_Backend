@@ -30,10 +30,8 @@ app.add_middleware(
 dataset = []
 results = ['', 'blues', 'classical', 'country', 'disco',
            'hippop', 'jazz', 'metal', 'pop', 'reggae', 'rock']
-isConvert = False
 
 
-# load data
 def loadDataset(filename):
     with open(filename, 'rb') as f:
         while True:
@@ -112,6 +110,7 @@ def convertToMp3(fileUrl):
 
 def typeHandler(fileName):
     audType = filetype.guess(fileName)
+    global isConvert
 
     if (audType != None):
         if (audType.mime == "audio/mpeg"):
@@ -135,24 +134,32 @@ async def gnereDetection(file: UploadFile):
     content = await file.read()
     f = open(file.filename, "wb")
     f.write(content)
+    global originFile
+    originFile = file.filename
 
     # the audio length should under 60s
-    if(AudioSegment.from_file(file.filename).duration_seconds > 61):
+    if(AudioSegment.from_file(originFile).duration_seconds > 61):
         f.close()
-        os.remove(file.filename)
+        os.remove(originFile)
         return {"genre": "", "status": "error", "message": "音檔長度不可高於60秒"}
 
     # if mp3 convert it to wav
-    convertedFile = typeHandler(file.filename)
-
+    global convertedFile
+    convertedFile = typeHandler(originFile)
+    f.close()
     print('已讀取以及轉換檔案 : ' + convertedFile)
 
+    return {"status": "the file is get ready"}
+
+
+@app.get("/predict/")
+def predictRoute():
+    print('開始預測 : ' + convertedFile)
     # start to predict the audio genre
     genre = predict(convertedFile)
 
     # delete these file
-    f.close()
-    os.remove(file.filename)
+    os.remove(originFile)
     if(isConvert):
         os.remove(convertedFile)
 
