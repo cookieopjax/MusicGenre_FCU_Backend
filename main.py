@@ -145,6 +145,7 @@ async def gnereDetection(file: UploadFile):
 
     # if mp3 convert it to wav
     global convertedFile
+    convertedFile = ""
     convertedFile = typeHandler(originFile)
     f.close()
     print('已讀取以及轉換檔案 : ' + convertedFile)
