@@ -90,10 +90,12 @@ def nearestClass(neighbors):
 def predict(fileName):
     (rate, sig) = wav.read(fileName)
     mfcc_feat = mfcc(sig, rate, winlen=0.020, appendEnergy=False)
+    print("after mfcc")
     covariance = np.cov(np.matrix.transpose(mfcc_feat))
     mean_matrix = mfcc_feat.mean(0)
+    print("after mean_matrix")
     feature = (mean_matrix, covariance, 0)
-
+    print("start pred")
     pred = nearestClass(getNeighbors(dataset, feature, 5))
 
     return results[pred]
