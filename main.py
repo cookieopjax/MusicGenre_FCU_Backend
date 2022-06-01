@@ -163,6 +163,7 @@ async def predictRoute():
     genre = await predict(convertedFile)
 
     # delete these file
+    print("檔案移除 ! ")
     os.remove(originFile)
     if(isConvert):
         os.remove(convertedFile)
