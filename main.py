@@ -97,7 +97,7 @@ def predict(fileName):
     feature = (mean_matrix, covariance, 0)
     print("start pred")
     pred = nearestClass(getNeighbors(dataset, feature, 5))
-
+    print("end nearest")
     return results[pred]
 
  # handle type convert
