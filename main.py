@@ -88,9 +88,10 @@ def nearestClass(neighbors):
 
 
 def predict(fileName):
+
+    print('開始預測 : ' + fileName)
     (rate, sig) = wav.read(fileName)
     mfcc_feat = mfcc(sig, rate, winlen=0.020, appendEnergy=False)
-    print("after mfcc")
     covariance = np.cov(np.matrix.transpose(mfcc_feat))
     mean_matrix = mfcc_feat.mean(0)
     print("after mean_matrix")
@@ -98,6 +99,7 @@ def predict(fileName):
     print("start pred")
     pred = nearestClass(getNeighbors(dataset, feature, 5))
     print("end nearest")
+
     return results[pred]
 
  # handle type convert
@@ -156,10 +158,9 @@ async def gnereDetection(file: UploadFile):
 
 
 @app.get("/predict/")
-def predictRoute():
-    print('開始預測 : ' + convertedFile)
+async def predictRoute():
     # start to predict the audio genre
-    genre = predict(convertedFile)
+    genre = await predict(convertedFile)
 
     # delete these file
     os.remove(originFile)
