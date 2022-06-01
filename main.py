@@ -158,9 +158,9 @@ async def gnereDetection(file: UploadFile):
 
 
 @app.get("/predict/")
-async def predictRoute():
+def predictRoute():
     # start to predict the audio genre
-    genre = await predict(convertedFile)
+    genre = predict(convertedFile)
 
     # delete these file
     print("檔案移除 ! ")
