@@ -125,6 +125,7 @@ def typeHandler(fileName):
     if (audType != None):
         if (audType.mime == "audio/mpeg"):
             convertToMp3(fileName, newFile)
+            os.remove(fileName)
 
         elif (audType.mime == "audio/x-wav"):
             os.rename(fileName, newFile)
@@ -144,21 +145,20 @@ async def uploadFile(file: UploadFile):
     content = await file.read()
     f = open(file.filename, "wb")
     f.write(content)
-    # global originFile
-    # originFile = file.filename
-    # f.close()
+    f.close()
 
-    # # if mp3 convert it to wav
-    # convertedFile = typeHandler(originFile)
+    # if mp3 convert it to wav
+    convertedFile = typeHandler(file.filename)
 
-    # if(os.path.isfile(convertedFile)):
-    #     print('已讀取以及轉換檔案 : ' + convertedFile)
-    # os.remove(file)
+    if(os.path.isfile(convertedFile)):
+        print('已讀取以及轉換檔案 : ' + convertedFile)
 
-    return {"convertedFile": file.filename, "status": "the file get ready"}
+    os.remove(file.fileName)
+
+    return {"convertedFile": convertedFile, "status": "the file get ready"}
 
 
-@app.get("/predict/")
+@app.get("/predict")
 def predictRoute(fileName: str):
     # start to predict the audio genre
     print('fileName:' + fileName)
