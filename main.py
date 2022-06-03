@@ -153,7 +153,7 @@ async def uploadFile(file: UploadFile):
     if(os.path.isfile(convertedFile)):
         print('已讀取以及轉換檔案 : ' + convertedFile)
 
-    os.remove(file.fileName)
+    os.remove(file.filename)
 
     return {"convertedFile": convertedFile, "status": "the file get ready"}
 
