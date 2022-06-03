@@ -147,19 +147,12 @@ async def uploadFile(file: UploadFile):
     originFile = file.filename
     f.close()
 
-    # the audio length should under 60s
-    if(AudioSegment.from_file(originFile).duration_seconds > 61):
-        f.close()
-        os.remove(originFile)
-        return {"genre": "", "status": "error", "message": "音檔長度不可高於60秒"}
-
     # if mp3 convert it to wav
-
     convertedFile = typeHandler(originFile)
 
     if(os.path.isfile(convertedFile)):
         print('已讀取以及轉換檔案 : ' + convertedFile)
-        os.remove(file)
+        # os.remove(file)
     return {"convertedFile": convertedFile, "status": "the file is get ready"}
 
 
