@@ -125,7 +125,6 @@ def typeHandler(fileName):
     if (audType != None):
         if (audType.mime == "audio/mpeg"):
             convertToMp3(fileName, newFile)
-            os.remove(fileName)
 
         elif (audType.mime == "audio/x-wav"):
             os.rename(fileName, newFile)
@@ -160,7 +159,7 @@ async def uploadFile(file: UploadFile):
 
     if(os.path.isfile(convertedFile)):
         print('已讀取以及轉換檔案 : ' + convertedFile)
-
+        os.remove(file)
     return {"convertedFile": convertedFile, "status": "the file is get ready"}
 
 
