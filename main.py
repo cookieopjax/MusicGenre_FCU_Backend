@@ -145,7 +145,7 @@ async def uploadFile(file: UploadFile):
     f.write(content)
     global originFile
     originFile = file.filename
-    f.close()
+    # f.close()
 
     # # if mp3 convert it to wav
     # convertedFile = typeHandler(originFile)
