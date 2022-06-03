@@ -120,6 +120,7 @@ def typeHandler(fileName):
 
     # 如果要轉換的目標檔案已存在，就直接return
     if(os.path.isfile(newFile)):
+        print('要轉換的目標已存在')
         return fileName
 
     if (audType != None):
@@ -159,7 +160,7 @@ async def uploadFile(file: UploadFile):
 @app.get("/predict")
 def predictRoute(fileName: str):
     # start to predict the audio genre
-    print('pridict fileName:' + fileName)
+    print('pridict fileName : ' + fileName)
 
     genre = predict(fileName)
 
