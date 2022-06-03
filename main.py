@@ -129,6 +129,7 @@ def typeHandler(fileName):
         elif (audType.mime == "audio/x-wav"):
             os.rename(fileName, newFile)
 
+    print("新檔案" + newFile)
     return newFile
 
 
