@@ -130,7 +130,7 @@ def typeHandler(fileName):
         elif (audType.mime == "audio/x-wav"):
             os.rename(fileName, newFile)
 
-    print("新檔案" + newFile)
+    print("新檔案 : " + newFile)
     return newFile
 
 
@@ -153,15 +153,13 @@ async def uploadFile(file: UploadFile):
     if(os.path.isfile(convertedFile)):
         print('已讀取以及轉換檔案 : ' + convertedFile)
 
-    os.remove(file.filename)
-
     return {"convertedFile": convertedFile, "status": "the file get ready"}
 
 
 @app.get("/predict")
 def predictRoute(fileName: str):
     # start to predict the audio genre
-    print('fileName:' + fileName)
+    print('pridict fileName:' + fileName)
 
     genre = predict(fileName)
 
