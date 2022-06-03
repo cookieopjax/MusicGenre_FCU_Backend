@@ -147,13 +147,13 @@ async def uploadFile(file: UploadFile):
     originFile = file.filename
     f.close()
 
-    # if mp3 convert it to wav
-    convertedFile = typeHandler(originFile)
+    # # if mp3 convert it to wav
+    # convertedFile = typeHandler(originFile)
 
-    if(os.path.isfile(convertedFile)):
-        print('已讀取以及轉換檔案 : ' + convertedFile)
-        # os.remove(file)
-    return {"convertedFile": convertedFile, "status": "the file is get ready"}
+    # if(os.path.isfile(convertedFile)):
+    #     print('已讀取以及轉換檔案 : ' + convertedFile)
+    # os.remove(file)
+    return {"convertedFile": originFile, "status": "the file is get ready"}
 
 
 @app.get("/predict/")
