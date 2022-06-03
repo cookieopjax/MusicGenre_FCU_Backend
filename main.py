@@ -1,4 +1,5 @@
 from email import message
+from hashlib import new
 import operator
 import os
 import pickle
@@ -94,7 +95,7 @@ def predict(fileName):
     mfcc_feat = mfcc(sig, rate, winlen=0.020, appendEnergy=False)
     covariance = np.cov(np.matrix.transpose(mfcc_feat))
     mean_matrix = mfcc_feat.mean(0)
-    print("after mean_matrix")
+
     feature = (mean_matrix, covariance, 0)
     print("start pred")
     pred = nearestClass(getNeighbors(dataset, feature, 5))
@@ -105,26 +106,31 @@ def predict(fileName):
  # handle type convert
 
 
-def convertToMp3(fileUrl):
-    dst = "convertedMp3.wav"
+def convertToMp3(fileUrl, dst):
     audSeg = AudioSegment.from_mp3(fileUrl)
     audSeg.export(dst, format="wav")
-    return dst
 
 
 def typeHandler(fileName):
+    # 如果檔案為a.wav，其檔名頭加上new_a.wav
+    # 如果檔案為a.mp3, 轉為 new_a.wav，並刪除a.mp3
+
     audType = filetype.guess(fileName)
-    global isConvert
+    newFile = 'new_' + fileName.split('.')[0] + '.wav'
+
+    # 如果要轉換的目標檔案已存在，就直接return
+    if(os.path.isfile(newFile)):
+        return fileName
 
     if (audType != None):
         if (audType.mime == "audio/mpeg"):
-            tempFile = convertToMp3(fileName)
-            isConvert = True
-        elif (audType.mime == "audio/x-wav"):
-            tempFile = fileName
-            isConvert = False
+            convertToMp3(fileName, newFile)
+            os.remove(fileName)
 
-    return tempFile
+        elif (audType.mime == "audio/x-wav"):
+            os.rename(fileName, newFile)
+
+    return newFile
 
 
 @app.get("/")
@@ -133,13 +139,14 @@ def read_root():
 
 
 @app.post("/uploadfile/")
-async def gnereDetection(file: UploadFile):
+async def uploadFile(file: UploadFile):
     # read file and save in server
     content = await file.read()
     f = open(file.filename, "wb")
     f.write(content)
     global originFile
     originFile = file.filename
+    f.close()
 
     # the audio length should under 60s
     if(AudioSegment.from_file(originFile).duration_seconds > 61):
@@ -148,24 +155,24 @@ async def gnereDetection(file: UploadFile):
         return {"genre": "", "status": "error", "message": "音檔長度不可高於60秒"}
 
     # if mp3 convert it to wav
-    global convertedFile
-    convertedFile = ""
-    convertedFile = typeHandler(originFile)
-    f.close()
-    print('已讀取以及轉換檔案 : ' + convertedFile)
 
-    return {"status": "the file is get ready"}
+    convertedFile = typeHandler(originFile)
+
+    if(os.path.isfile(convertedFile)):
+        print('已讀取以及轉換檔案 : ' + convertedFile)
+
+    return {"convertedFile": convertedFile, "status": "the file is get ready"}
 
 
 @app.get("/predict/")
-def predictRoute():
+def predictRoute(fileName: str):
     # start to predict the audio genre
-    genre = predict(convertedFile)
+    print('fileName:' + fileName)
+
+    genre = predict(fileName)
 
     # delete these file
     print("檔案移除 ! ")
-    os.remove(originFile)
-    if(isConvert):
-        os.remove(convertedFile)
+    os.remove(fileName)
 
     return {"genre": genre, "status": "ok"}
