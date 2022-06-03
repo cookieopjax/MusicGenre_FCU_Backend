@@ -1,4 +1,5 @@
 from email import message
+from genericpath import isfile
 from hashlib import new
 import operator
 import os
@@ -159,6 +160,10 @@ async def uploadFile(file: UploadFile):
 
 @app.get("/predict")
 def predictRoute(fileName: str):
+
+    if(os.path.isfile(fileName) == None):
+        return {"genre": "無此檔案，請重新上傳", "status": "error"}
+
     # start to predict the audio genre
     print('pridict fileName : ' + fileName)
 
