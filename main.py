@@ -6,7 +6,7 @@ import pickle
 from email.mime import audio
 from tempfile import TemporaryFile
 from wsgiref.validate import InputWrapper
-
+import time
 import filetype
 import numpy as np
 import scipy.io.wavfile as wav
@@ -154,6 +154,7 @@ async def uploadFile(file: UploadFile):
     # if(os.path.isfile(convertedFile)):
     #     print('已讀取以及轉換檔案 : ' + convertedFile)
     # os.remove(file)
+    time.sleep(3)
     return {"convertedFile": originFile, "status": "the file is get ready"}
 
 
