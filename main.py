@@ -138,14 +138,14 @@ def read_root():
     return {"status": "ok"}
 
 
-@app.post("/uploadfile/")
+@app.post("/uploadfile")
 async def uploadFile(file: UploadFile):
     # read file and save in server
     content = await file.read()
     f = open(file.filename, "wb")
     f.write(content)
-    global originFile
-    originFile = file.filename
+    # global originFile
+    # originFile = file.filename
     # f.close()
 
     # # if mp3 convert it to wav
@@ -154,8 +154,8 @@ async def uploadFile(file: UploadFile):
     # if(os.path.isfile(convertedFile)):
     #     print('已讀取以及轉換檔案 : ' + convertedFile)
     # os.remove(file)
-    time.sleep(3)
-    return {"convertedFile": originFile, "status": "the file is get ready"}
+
+    return {"convertedFile": file.filename, "status": "the file get ready"}
 
 
 @app.get("/predict/")
